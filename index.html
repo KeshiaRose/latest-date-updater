@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Latest Date Updater</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="tableau-ui.min.js"></script>
+    <script src="tableau-extensions-1.latest.js"></script>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .cog {
+            height: 32px;
+        }
+        
+        .click {
+            cursor: pointer;
+        }
+        
+        #configure {
+            display: none;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        #dashboard {
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .header {
+            font-size: 20px;
+        }
+        
+        #datasourcesContainer,
+        #fieldsContainer,
+        .f1ip2gsr {
+            width: 100%;
+        }
+        
+        #submitContainer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        
+        p {
+            margin: 12px 0px 6px 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id='configure'>
+        <span class='header'>Configure Latest Date Updater</span>
+        <p>Select a data source:</p>
+        <div id='datasourcesContainer'></div>
+        <p>Select a field:</p>
+        <div id='fieldsContainer'></div>
+        <p>Select a parameter to update:</p>
+        <div id='parametersContainer'></div>
+        <div id='submitContainer'></div>
+    </div>
+    <div id='dashboard'>
+        <div class='viewing' title='This cog will not show in viewer mode.'>
+            <svg class='cog click' onClick='configure()' data-icon='cog' role='img' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' data-fa-i2svg='true'>
+                <path fill='currentColor' d='M444.788 291.1l42.616 24.599c4.867 2.809 7.126 8.618 5.459 13.985-11.07 35.642-29.97 67.842-54.689 94.586a12.016 12.016 0 0 1-14.832 2.254l-42.584-24.595a191.577 191.577 0 0 1-60.759 35.13v49.182a12.01 12.01 0 0 1-9.377 11.718c-34.956 7.85-72.499 8.256-109.219.007-5.49-1.233-9.403-6.096-9.403-11.723v-49.184a191.555 191.555 0 0 1-60.759-35.13l-42.584 24.595a12.016 12.016 0 0 1-14.832-2.254c-24.718-26.744-43.619-58.944-54.689-94.586-1.667-5.366.592-11.175 5.459-13.985L67.212 291.1a193.48 193.48 0 0 1 0-70.199l-42.616-24.599c-4.867-2.809-7.126-8.618-5.459-13.985 11.07-35.642 29.97-67.842 54.689-94.586a12.016 12.016 0 0 1 14.832-2.254l42.584 24.595a191.577 191.577 0 0 1 60.759-35.13V25.759a12.01 12.01 0 0 1 9.377-11.718c34.956-7.85 72.499-8.256 109.219-.007 5.49 1.233 9.403 6.096 9.403 11.723v49.184a191.555 191.555 0 0 1 60.759 35.13l42.584-24.595a12.016 12.016 0 0 1 14.832 2.254c24.718 26.744 43.619 58.944 54.689 94.586 1.667 5.366-.592 11.175-5.459 13.985L444.788 220.9a193.485 193.485 0 0 1 0 70.2zM336 256c0-44.112-35.888-80-80-80s-80 35.888-80 80 35.888 80 80 80 80-35.888 80-80z' />
+            </svg>
+        </div>
+    </div>
+    <script>
+        tableau.extensions.initializeDialogAsync({
+            configure: configure
+        }).then(() => {
+            const settings = tableau.extensions.settings.getAll();
+
+            if (getUrlVars()['page'] == 'config') {
+                document.getElementById('configure').style.display = 'block';
+                document.getElementById('dashboard').style.display = 'none';
+                ReactDOM.render(
+                    React.createElement(TableauUI.DropdownSelect, {
+                        kind: 'outline',
+                        id: 'datasources',
+                        onChange: reloadFields,
+                        style: {
+                            width: '100%',
+                        },
+                    }),
+                    document.getElementById('datasourcesContainer'),
+                    getAllDataSources
+                );
+                ReactDOM.render(
+                    React.createElement(TableauUI.DropdownSelect, {
+                        kind: 'outline',
+                        id: 'fields',
+                    }),
+                    document.getElementById('fieldsContainer')
+                );
+                ReactDOM.render(
+                    React.createElement(TableauUI.DropdownSelect, {
+                        kind: 'outline',
+                        id: 'parameters',
+                    }),
+                    document.getElementById('parametersContainer'),
+                    getAllParameters
+                );
+                ReactDOM.render(
+                    React.createElement(TableauUI.Button, {
+                        kind: 'filledGreen',
+                        onClick: submit,
+                    }, 'Save'),
+                    document.getElementById('submitContainer')
+                );
+            } else {
+                if (settings.configured === 'true') {
+                    const settings = tableau.extensions.settings.getAll();
+                    updateParameter(settings);
+                } else {
+                    configure();
+                }
+                document.getElementById('configure').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'flex';
+            }
+
+        })
+
+        let dataSources = [];
+
+        function getAllDataSources() {
+            const dashboard = tableau.extensions.dashboardContent.dashboard;
+            let worksheetCount = 0;
+
+            dashboard.worksheets.forEach(worksheet => {
+                worksheet.getDataSourcesAsync().then(wsDataSources => {
+                    wsDataSources.forEach(dataSource => {
+                        if (!dataSources.find(ds => ds.id === dataSource.id)) {
+                            dataSources.push(dataSource);
+                        }
+                    })
+                    worksheetCount++;
+                    if (worksheetCount === dashboard.worksheets.length) {
+                        populateDataSourceOptions(dataSources);
+                    }
+                })
+            });
+        }
+
+        function populateDataSourceOptions() {
+            let dataSourcesInput = document.getElementById('datasources');
+            let output = '';
+            for (dataSource of dataSources) {
+                output += `<option value='${dataSource.id}'>${dataSource.name}</option>`;
+            }
+            if (output === '') {
+                output = '<option value="">No date sources found.</option>';
+            }
+            dataSourcesInput.innerHTML = output;
+            getAllFields(dataSourcesInput.value)
+        }
+
+        function reloadFields(e) {
+            getAllFields(e.target.value);
+        }
+
+        function getAllFields(dataSourceId) {
+            let fieldsInput = document.getElementById('fields');
+            let dataSource = dataSources.find(ds => ds.id === dataSourceId);
+            let output = '';
+            dataSource.getUnderlyingDataAsync().then(dataTable => {
+                for (column of dataTable.columns) {
+                    if (column.dataType === 'date' || column.dataType === 'date-time') {
+                        output += `<option value='${column.fieldName}'>${column.fieldName}</option>`;
+                    }
+                }
+                if (output === '') {
+                    output = '<option value="">No date fields found in selected data source.</option>';
+                }
+                fieldsInput.innerHTML = output;
+            });
+        }
+
+        function getAllParameters() {
+            const dashboard = tableau.extensions.dashboardContent.dashboard;
+            let parametersInput = document.getElementById('parameters');
+            let output = '';
+            dashboard.getParametersAsync().then(parameters => {
+                for (parameter of parameters) {
+                    if (parameter.allowableValues.type === 'all' && (parameter.dataType === 'date' || parameter
+                            .dataType === 'date-time')) {
+                        output += `<option value='${parameter.name}'>${parameter.name}</option>`;
+                    }
+                }
+                if (output === '') {
+                    output = '<option value="">No date parameters with open inputs found.</option>';
+                }
+                parametersInput.innerHTML = output;
+            });
+        }
+
+        function updateParameter(settings) {
+            const dashboard = tableau.extensions.dashboardContent.dashboard;
+            let worksheetCount = 0;
+            let dataSourceSetting, date;
+
+            dashboard.worksheets.forEach(worksheet => {
+                worksheet.getDataSourcesAsync().then(wsDataSources => {
+                    wsDataSources.forEach(dataSource => {
+                        if (dataSource.id === settings.datasource) {
+                            dataSourceSetting = dataSource;
+                        }
+                    })
+                    worksheetCount++;
+                    if (worksheetCount === dashboard.worksheets.length) {
+                        dataSourceSetting.getUnderlyingDataAsync().then(dataTable => {
+                            console.log(dataTable)
+                            let dates = [];
+                            fieldIndex = dataTable.columns.find(column => column.fieldName ===
+                                settings.field).index;
+                            for (dataValue of dataTable.data) {
+                                dates.push(new Date(dataValue[fieldIndex].value + "Z"));
+                            }
+                            dashboard.findParameterAsync(settings.parameter).then(parameter => {
+                                parameter.changeValueAsync(dates.sort((a, b) => b - a)[0])
+                            })
+                        });
+                    }
+                })
+            });
+        }
+
+        function submit() {
+            window.tableau.extensions.settings.set('parameter', document.getElementById('parameters').value);
+            window.tableau.extensions.settings.set('datasource', document.getElementById('datasources').value);
+            window.tableau.extensions.settings.set('field', document.getElementById('fields').value);
+            window.tableau.extensions.settings.set('configured', 'true');
+            window.tableau.extensions.settings.saveAsync().then(() => {
+                window.tableau.extensions.ui.closeDialog('');
+            });
+        }
+
+        function configure() {
+            const popupUrl = (window.location.origin.includes('localhost')) ? `${window.location.origin}?page=config` :
+                `${window.location.origin}/latest-date-updater?page=config`;
+            const payload = '';
+            tableau.extensions.ui.displayDialogAsync(popupUrl, payload, {
+                height: 300,
+                width: 375
+            }).then(() => {
+                const settings = tableau.extensions.settings.getAll();
+                updateParameter(settings);
+            }).catch((error) => {
+                switch (error.errorCode) {
+                    case window.tableau.ErrorCodes.DialogClosedByUser:
+                        console.log('Dialog was closed by user.');
+                        break;
+                    default:
+                        console.error(error.message);
+                }
+            });
+        }
+
+        function getUrlVars() {
+            var vars = {};
+            var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m, key, value) {
+                vars[key] = value;
+            });
+            return vars;
+        }
+    </script>
+</body>
+
+</html>
