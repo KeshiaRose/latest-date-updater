@@ -1,2 +1,11 @@
-# latest-date-updater
+# Latest Date Updater
 A Tableau extension that automatically updates a parameter to the most recent date in a data source.
+
+## How to use
+Using version 2018.2 or higher drag an extension object to your dashboard and choose the Latest Date Updater [manifest file](https://keshiarose.github.io/latest-date-updater/LatestDateUpdater.trex).
+
+1. Choose the data source and field you want to use as the source.
+2. Choose the parameter you want to update.
+3. Save
+
+Note: This extension requires full data access and therefore will not work for *Viewer* accounts.
