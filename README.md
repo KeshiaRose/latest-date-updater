@@ -10,4 +10,4 @@ Using version 2018.2 or higher drag an extension object to your dashboard and ch
 
 Note: This extension requires full data access and therefore will not work for *Viewer* accounts.
 
-Also note: This is not an official Tableau extension. just somethign I threw together so ti won't have the nice checks and balances that I usually do. If you change parameters or fields or data sources it will break and require reconfiguration.
+Also note: This is not an official Tableau extension. Just something I threw together so it won't have the nice checks and balances that I usually do. If you change parameters or fields or data sources it will break and require reconfiguration.
