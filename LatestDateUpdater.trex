@@ -10,9 +10,6 @@
       <url>https://keshiarose.github.io/latest-date-updater/</url>
     </source-location>
     <icon></icon>
-    <permissions>
-    	<permission>full data</permission>
-    </permissions>
     <context-menu>
       <configure-context-menu-item />
     </context-menu>
