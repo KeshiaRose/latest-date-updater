@@ -6,8 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Latest Date Updater</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="react.development.js"></script>
+    <script src="react-dom.development.js"></script>
     <script src="tableau-ui.min.js"></script>
     <script src="tableau-extensions-1.latest.js"></script>
     <style>
@@ -71,7 +71,7 @@
 <body>
     <div id='configure'>
         <span class='header'>Configure Latest Date Updater</span>
-        <p style='margin-bottom:20px'><b>How to use this extension:</b> This extenson will query your data source for the latest date and then update a parameter to match. Create a source worksheet that has your date field set to "exact date" on detail. Use this worksheet in the configuration below. This source worksheet can be minimized to 1px by 1px if you want to hide it. Worksheet can include filters to minimize load times and/or DATETRUNC() calculations to get the right date aggregation.</p>
+        <p style='margin-bottom:20px'><b>How to use this extension:</b> This extenson will query your data source for the latest date and then update a parameter to match. Create a source worksheet that has MAX([Your Date Field]) on detail. Use this worksheet in the configuration below. This source worksheet can be minimized to 1x1 pixels if you want to hide it. Functions like DATETRUNC() can be used to get the right date aggregation if needed.</p>
         <p>Select a worksheet:</p>
         <div id='worksheetsContainer'></div>
         <p>Select a field:</p>
